@@ -1,0 +1,25 @@
+sequenceDiagram
+  participant U as User
+  participant UI as UI (ShoppingListDetailPage)
+  participant S as ShoppingListService/Provider
+  participant SS as SessionService (local cache)
+  participant QC as QueueClient
+  participant SW as SW NSQueue
+  participant DP as Dropbox Processor
+
+  U->>UI: Add/Modify/Toggle item
+  UI->>S: apply optimistic change
+  S->>SS: setLocalFile(listId, snapshot)
+  S->>QC: enqueue('shopping-lists', listId, snapshot)
+  QC->>SW: QUEUE_ENQUEUE
+  SW->>SW: upsert item (coalesce by resourceKey)
+  SW-->>UI: QUEUE_EVENT ready
+  SW->>DP: processLoop → upload JSON overwrite
+  DP-->>SW: upload ok
+  SW-->>UI: QUEUE_EVENT processed
+  alt newer pending exists
+    SW->>SW: keep for reprocess (newer lastUpdatedAt)
+    SW->>DP: process latest snapshot
+    DP-->>SW: upload ok
+  end
+  SW-->>UI: QUEUE_EVENT drained

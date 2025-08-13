@@ -1,0 +1,21 @@
+
+# ads.txt file for Google AdSense
+# This file will be updated when Google AdSense account is approved
+# Format: google.com, pub-XXXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+
+# Replace XXXXXXXXXXXXXXXXX with your actual Google AdSense publisher ID
+# google.com, pub-XXXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
+
+# Example entries for other ad networks (uncomment and modify as needed):
+# google.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0
+# googlesyndication.com, pub-1234567890123456, DIRECT, f08c47fec0942fa0
+
+# Additional ad networks can be added here following the same format:
+# adnxs.com, 1234, RESELLER, f5ab79cb980f11d1
+# rubiconproject.com, 5678, RESELLER, 0bfd66d529a55807
+
+# Instructions:
+# 1. Get approved for Google AdSense
+# 2. Replace pub-XXXXXXXXXXXXXXXXX with your actual publisher ID
+# 3. Uncomment the google.com line
+# 4. Add any other authorized ad networks and their IDs

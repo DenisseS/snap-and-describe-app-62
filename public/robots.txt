@@ -1,0 +1,34 @@
+
+User-agent: *
+Allow: /
+
+# Main app pages
+Allow: /
+Allow: /explore
+Allow: /recipes
+Allow: /favorites
+Allow: /shopping-lists
+
+# Legal and informational pages
+Allow: /legal/privacy
+Allow: /legal/terms
+Allow: /legal/about
+Allow: /legal/contact
+Allow: /legal/help
+Allow: /legal/how-it-works
+Allow: /legal/features
+Allow: /legal/nutrition-disclaimer
+Allow: /legal/food-safety
+Allow: /legal/user-guide
+Allow: /legal/recipe-guide
+Allow: /legal/developer
+
+# Disallow auth callback and dynamic product pages for crawling
+Disallow: /auth/callback
+Disallow: /product/
+
+# Sitemaps
+Sitemap: __SITE_URL__/sitemap.xml
+
+# Crawl delay (optional)
+Crawl-delay: 1

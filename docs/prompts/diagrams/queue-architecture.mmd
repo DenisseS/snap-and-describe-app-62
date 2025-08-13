@@ -1,0 +1,37 @@
+graph TD
+  subgraph Client
+    UI[UI: Pages/Components]
+    Svc[ShoppingListService + Providers]
+    QC[QueueClient]
+    Hook[useQueueResource]
+    Auth[AuthContext]
+    Sync[SessionService.performBackgroundSync]
+    Stale{Remote updatedAt < Local updatedAt?}
+  end
+
+  subgraph SW[Service Worker]
+    NSQ[NSQueue: queue.js]
+    DB[(IndexedDB)]
+    ProcDropbox[Processor: dropbox.js]
+  end
+
+  UI -->|optimistic update| Svc
+  Svc -->|enqueue(list snapshot)| QC
+  QC -->|postMessage QUEUE_ENQUEUE| NSQ
+  NSQ --> DB
+  NSQ -->|QUEUE_EVENT*| UI
+  NSQ -->|processLoop| ProcDropbox
+  ProcDropbox -->|upload overwrite JSON| Dropbox[(Dropbox API)]
+
+  Auth -->|start(access_token)| QC
+  QC -->|QUEUE_START| NSQ
+  NSQ -->|auto-start if token| NSQ
+
+  Hook -->|navigator.serviceWorker messages| NSQ
+  Hook -->|state=idle/pending/processing/error| UI
+
+  %% Remote sync flow with stale deletion
+  Sync -->|remote data| Stale
+  Stale -->|Yes: delete stale remote| Del[SessionService.deleteFile]
+  Del -->|then re-enqueue local latest| QC
+  Stale -->|No: accept and cache remote| UI

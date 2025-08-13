@@ -1,0 +1,19 @@
+sequenceDiagram
+  participant U as User
+  participant UI as UI (ShoppingListDetailPage)
+  participant S as ShoppingListService/Provider
+  participant SS as SessionService (local cache)
+  participant QC as QueueClient
+  participant SW as SW NSQueue
+  participant DP as Dropbox Processor
+
+  U->>UI: Delete item
+  UI->>S: remove in-memory + view update
+  S->>SS: setLocalFile(listId, snapshot without item)
+  S->>QC: enqueue('shopping-lists', listId, snapshot)
+  QC->>SW: QUEUE_ENQUEUE
+  SW->>SW: upsert coalesced item
+  SW-->>UI: QUEUE_EVENT ready
+  SW->>DP: upload latest snapshot overwrite
+  DP-->>SW: upload ok
+  SW-->>UI: QUEUE_EVENT processed → drained

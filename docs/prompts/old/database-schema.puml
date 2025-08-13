@@ -1,0 +1,158 @@
+@startuml Enhanced Food Database Schema
+
+!theme plain
+skinparam linetype ortho
+skinparam packageStyle rectangle
+
+package "Reference Tables" {
+  entity "categories" {
+    * id: UUID [PK]
+    * key: TEXT [UK]
+    * created_at: TIMESTAMP
+  }
+
+  entity "vitamins" {
+    * id: UUID [PK]
+    * key: TEXT [UK]
+    * created_at: TIMESTAMP
+  }
+
+  entity "minerals" {
+    * id: UUID [PK]
+    * key: TEXT [UK]
+    * created_at: TIMESTAMP
+  }
+
+  entity "processing_levels" {
+    * id: UUID [PK]
+    * nova_level: INTEGER [1-4]
+    * category: TEXT
+    * created_at: TIMESTAMP
+  }
+
+  entity "processing_indicators" {
+    * id: UUID [PK]
+    * key: TEXT [UK]
+    * created_at: TIMESTAMP
+  }
+
+  entity "nutrition_types" {
+    * id: UUID [PK]
+    * key: TEXT [UK]
+    * created_at: TIMESTAMP
+  }
+
+  entity "health_rankings" {
+    * id: UUID [PK]
+    * ranking: INTEGER [1-10]
+    * description_key: TEXT
+    * created_at: TIMESTAMP
+  }
+
+  entity "allergens" {
+    * id: UUID [PK]
+    * key: TEXT [UK]
+    * name_key: TEXT
+    * category: TEXT [allergen/dietary/certification/health]
+    * priority: INTEGER
+    * created_at: TIMESTAMP
+  }
+}
+
+package "Product Tables" {
+  entity "products" {
+    * id: UUID [PK]
+    * legacy_id: TEXT [UK]
+    * name_key: TEXT
+    * image: TEXT
+    * rating: DECIMAL(3,1)
+    * category_id: UUID [FK]
+    * processing_level_id: UUID [FK]
+    * description_key: TEXT
+    * created_at: TIMESTAMP
+    * updated_at: TIMESTAMP
+  }
+
+  entity "product_nutrition" {
+    * id: UUID [PK]
+    * product_id: UUID [FK]
+    * nutrition_data: JSONB
+    * created_at: TIMESTAMP
+    '
+    ' JSON Structure:
+    ' - calories: { total, from_carbs, from_protein, from_fat }
+    ' - macronutrients: { protein, carbs, fats, fiber }
+    ' - vitamins: [...]
+    ' - minerals: [...]
+  }
+
+  entity "product_nutrition_facts" {
+    * id: UUID [PK]
+    * product_id: UUID [FK]
+    * facts: JSONB
+    * created_at: TIMESTAMP
+    '
+    ' JSON Structure:
+    ' - saturated_fat, sugar, sodium, cholesterol, vitamin_c, calcium, iron, potassium, ...
+  }
+
+  entity "product_allergens" {
+    * id: UUID [PK]
+    * product_id: UUID [FK]
+    * allergen_id: UUID [FK]
+    * created_at: TIMESTAMP
+  }
+}
+
+package "Junction Tables" {
+  entity "product_processing_indicators" {
+    * id: UUID [PK]
+    * product_id: UUID [FK]
+    * processing_indicator_id: UUID [FK]
+    * created_at: TIMESTAMP
+  }
+
+  entity "product_relationships" {
+    * id: UUID [PK]
+    * product_id: UUID [FK]
+    * related_product_id: UUID [FK]
+    * relationship_type: TEXT
+    * created_at: TIMESTAMP
+  }
+}
+
+package "Translation System" {
+  entity "languages" {
+    * id: UUID [PK]
+    * code: TEXT [UK]
+    * name: TEXT
+    * created_at: TIMESTAMP
+  }
+
+  entity "translations" {
+    * id: UUID [PK]
+    * language_id: UUID [FK]
+    * translation_key: TEXT
+    * translation_value: TEXT
+    * created_at: TIMESTAMP
+    * updated_at: TIMESTAMP
+  }
+}
+
+' Relationships
+products ||--|| product_nutrition
+products ||--|| product_nutrition_facts
+products ||--o{ product_allergens
+products ||--o{ product_processing_indicators
+products ||--o{ product_relationships
+products }o--|| categories
+products }o--|| processing_levels
+
+product_allergens }o--|| allergens
+product_processing_indicators }o--|| processing_indicators
+
+product_relationships }o--|| products : related_product_id
+
+languages ||--o{ translations
+
+@enduml
