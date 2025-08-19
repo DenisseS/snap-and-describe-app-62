@@ -19,6 +19,7 @@ import LegalPage from "./pages/LegalPage";
 import SupportPage from "./pages/SupportPage";
 import BlogPage from './pages/BlogPage';
 import BlogPostPage from './pages/BlogPostPage';
+import ShareAcceptPage from "./pages/ShareAcceptPage";
 import CookieConsent from './components/CookieConsent';
 import NotFound from "./pages/NotFound";
 import { UserDataProvider } from "@/contexts/UserDataContext";
@@ -45,6 +46,7 @@ const App = () => (
                 <Route path="/product/:productSlug" element={<ProductDetail />} />
                 <Route path="/shopping-lists" element={<ShoppingListsPage />} />
                 <Route path="/shopping-lists/:listId" element={<ShoppingListDetailPage />} />
+                <Route path="/share/accept" element={<ShareAcceptPage />} />
                 <Route path="/support" element={<SupportPage />} />
                 <Route path="/legal/:slug" element={<LegalPage />} />
                 {/* Developer page removed as requested */}

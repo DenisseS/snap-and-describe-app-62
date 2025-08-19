@@ -19,7 +19,7 @@ export const SHOPPING_LIST_CACHE_KEYS = {
   
   // Remote storage paths for authenticated users
   REMOTE_SHOPPING_LISTS_PATH: '/user-shopping-lists.json',
-  REMOTE_LIST_PREFIX: '/shopping-list-',
+  REMOTE_LIST_PREFIX: '/lists/',
   
   // Cache keys for remote files
   REMOTE_CACHE_PREFIX: `${CACHE_PREFIXES.DROPBOX_PREFIX}FILE_`

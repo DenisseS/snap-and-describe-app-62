@@ -22,6 +22,14 @@ export interface ShoppingList {
   itemCount: number;
   completedCount: number;
   order?: number;
+  // Sharing fields
+  origin?: 'local' | 'remote';
+  sharedWith?: string[]; // emails of people shared with (only on owner's lists)
+  syncRef?: {
+    path: string;
+    fileId?: string;
+    ownerEmail?: string;
+  };
 }
 
 export interface ShoppingListData {
@@ -31,4 +39,15 @@ export interface ShoppingListData {
   items: ShoppingListItem[];
   createdAt: string;
   updatedAt: string;
+  // Sharing fields (inherited from ShoppingList)
+  origin?: 'local' | 'remote';
+  sharedWith?: string[];
+  syncRef?: {
+    path: string;
+    fileId?: string;
+    ownerEmail?: string;
+  };
+  // Metadata for compatibility
+  itemCount?: number;
+  completedCount?: number;
 }

@@ -14,6 +14,12 @@ interface UseShoppingListsReturn {
   updateList: (listId: string, updates: Partial<ShoppingList>) => Promise<boolean>;
   deleteList: (listId: string) => Promise<boolean>;
   reorderLists: (listIds: string[]) => Promise<boolean>;
+  addRemoteList: (remoteListInfo: {
+    id: string;
+    name: string;
+    origin: 'remote';
+    syncRef: { path: string; ownerEmail?: string };
+  }) => Promise<boolean>;
 }
 
 export const useShoppingLists = (): UseShoppingListsReturn => {
@@ -173,6 +179,55 @@ export const useShoppingLists = (): UseShoppingListsReturn => {
     }
   };
 
+  const addRemoteList = async (remoteListInfo: {
+    id: string;
+    name: string;
+    origin: 'remote';
+    syncRef: { path: string; ownerEmail?: string };
+  }): Promise<boolean> => {
+    try {
+      console.log('🛒 useShoppingLists: Adding remote list:', remoteListInfo);
+      
+      const now = new Date().toISOString();
+      // Create the remote list entry
+      const remoteList: ShoppingList = {
+        id: remoteListInfo.id,
+        name: remoteListInfo.name,
+        createdAt: now,
+        updatedAt: now,
+        itemCount: 0,
+        completedCount: 0,
+        origin: remoteListInfo.origin,
+        syncRef: remoteListInfo.syncRef,
+        order: 0 // Will be adjusted when first loaded
+      };
+
+      // Update local state optimistically
+      setLists(prev => ({ ...prev, [remoteListInfo.id]: remoteList }));
+
+      // Save to backend via service
+      const success = await service.updateShoppingList(remoteListInfo.id, remoteList);
+      
+      if (!success) {
+        // Remove from local state if backend failed
+        setLists(prev => {
+          const { [remoteListInfo.id]: removed, ...rest } = prev;
+          return rest;
+        });
+      }
+      
+      return success;
+    } catch (error) {
+      console.error('🛒 useShoppingLists: Error adding remote list:', error);
+      // Remove from local state on error
+      setLists(prev => {
+        const { [remoteListInfo.id]: removed, ...rest } = prev;
+        return rest;
+      });
+      return false;
+    }
+  };
+
   return {
     lists,
     state,
@@ -180,6 +235,7 @@ export const useShoppingLists = (): UseShoppingListsReturn => {
     createList,
     updateList,
     deleteList,
-    reorderLists
+    reorderLists,
+    addRemoteList
   };
 };

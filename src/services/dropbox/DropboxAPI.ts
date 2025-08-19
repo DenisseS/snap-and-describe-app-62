@@ -172,4 +172,83 @@ export class DropboxAPI {
       body: JSON.stringify({ path: fullPath }),
     });
   }
+
+  async createFolder(accessToken: string, path: string): Promise<Response> {
+    const fullPath = this.buildDropboxPath(path);
+    return fetch('https://api.dropboxapi.com/2/files/create_folder_v2', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ 
+        path: fullPath,
+        autorename: false 
+      }),
+    });
+  }
+
+  // Sharing API methods
+  async addFolderMember(accessToken: string, folderPath: string, email: string, accessLevel: 'editor' | 'viewer' = 'editor'): Promise<Response> {
+    const fullPath = this.buildDropboxPath(folderPath);
+    return fetch('https://api.dropboxapi.com/2/sharing/add_folder_member', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        shared_folder_id: fullPath, // Will be resolved by Dropbox
+        members: [{
+          member: { '.tag': 'email', email },
+          access_level: { '.tag': accessLevel }
+        }]
+      }),
+    });
+  }
+
+  async listFolderMembers(accessToken: string, folderPath: string): Promise<Response> {
+    const fullPath = this.buildDropboxPath(folderPath);
+    return fetch('https://api.dropboxapi.com/2/sharing/list_folder_members', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        shared_folder_id: fullPath
+      }),
+    });
+  }
+
+  async removeFolderMember(accessToken: string, folderPath: string, email: string): Promise<Response> {
+    const fullPath = this.buildDropboxPath(folderPath);
+    return fetch('https://api.dropboxapi.com/2/sharing/remove_folder_member', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        shared_folder_id: fullPath,
+        member: { '.tag': 'email', email },
+        leave_a_copy: false
+      }),
+    });
+  }
+
+  async shareFolderByPath(accessToken: string, folderPath: string): Promise<Response> {
+    const fullPath = this.buildDropboxPath(folderPath);
+    return fetch('https://api.dropboxapi.com/2/sharing/share_folder', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        path: fullPath,
+        access_level: { '.tag': 'editor' }
+      }),
+    });
+  }
 }

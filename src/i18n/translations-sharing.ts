@@ -1,0 +1,90 @@
+export const sharingTranslations = {
+  en: {
+    // Share modal
+    shareList: 'Share List',
+    shareLink: 'Share Link',
+    shareUrlDescription: 'Share this link so others can access the list',
+    inviteByEmail: 'Invite by Email',
+    enterEmail: 'Enter email',
+    invite: 'Invite',
+    inviting: 'Inviting...',
+    sharedWith: 'Shared with',
+    close: 'Close',
+    linkCopied: 'Link Copied',
+    shareUrlCopied: 'Share link has been copied to clipboard',
+    error: 'Error',
+    failedToCopyLink: 'Failed to copy link',
+    invitationSent: 'Invitation Sent',
+    userInvited: 'User has been invited to the list',
+    failedToInvite: 'Failed to send invitation',
+    userRemoved: 'User Removed',
+    userRemovedFromList: 'User has been removed from the list',
+    failedToRemoveUser: 'Failed to remove user',
+    
+    // Share accept page
+    acceptSharedList: 'Accept Shared List',
+    invalidLink: 'Invalid Link',
+    invalidShareLink: 'Invalid share link',
+    invalidShareLinkDescription: 'This share link is invalid or has expired',
+    goToLists: 'Go to My Lists',
+    sharedListInvitation: 'Shared List Invitation',
+    sharedListFromUser: '{{owner}} has shared a list with you',
+    sharedListDescription: 'You have been invited to a shared list',
+    authRequiredToAccept: 'You need to sign in to accept this invitation',
+    signInToContinue: 'Sign In to Continue',
+    accepting: 'Accepting...',
+    acceptAndJoin: 'Accept and Join',
+    loading: 'Loading...',
+    goToMyLists: 'My Lists',
+    failedToAcceptShare: 'Failed to accept shared list',
+    
+    // List indicators
+    remoteList: 'Shared list',
+    by: 'by',
+    sharedList: 'Shared List'
+  },
+  es: {
+    // Share modal
+    shareList: 'Compartir Lista',
+    shareLink: 'Enlace para compartir',
+    shareUrlDescription: 'Comparte este enlace para que otros puedan acceder a la lista',
+    inviteByEmail: 'Invitar por email',
+    enterEmail: 'Ingresa el email',
+    invite: 'Invitar',
+    inviting: 'Invitando...',
+    sharedWith: 'Compartido con',
+    close: 'Cerrar',
+    linkCopied: 'Enlace copiado',
+    shareUrlCopied: 'El enlace para compartir ha sido copiado al portapapeles',
+    error: 'Error',
+    failedToCopyLink: 'No se pudo copiar el enlace',
+    invitationSent: 'Invitación enviada',
+    userInvited: 'El usuario ha sido invitado a la lista',
+    failedToInvite: 'No se pudo enviar la invitación',
+    userRemoved: 'Usuario eliminado',
+    userRemovedFromList: 'El usuario ha sido eliminado de la lista',
+    failedToRemoveUser: 'No se pudo eliminar el usuario',
+    
+    // Share accept page
+    acceptSharedList: 'Aceptar Lista Compartida',
+    invalidLink: 'Enlace Inválido',
+    invalidShareLink: 'Enlace de compartir inválido',
+    invalidShareLinkDescription: 'Este enlace de compartir no es válido o ha expirado',
+    goToLists: 'Ir a Mis Listas',
+    sharedListInvitation: 'Invitación a Lista Compartida',
+    sharedListFromUser: '{{owner}} ha compartido una lista contigo',
+    sharedListDescription: 'Has sido invitado a una lista compartida',
+    authRequiredToAccept: 'Necesitas iniciar sesión para aceptar esta invitación',
+    signInToContinue: 'Iniciar Sesión para Continuar',
+    accepting: 'Aceptando...',
+    acceptAndJoin: 'Aceptar y Unirse',
+    loading: 'Cargando...',
+    goToMyLists: 'Mis Listas',
+    failedToAcceptShare: 'No se pudo aceptar la lista compartida',
+    
+    // List indicators
+    remoteList: 'Lista compartida',
+    by: 'por',
+    sharedList: 'Lista Compartida'
+  }
+};

@@ -38,7 +38,7 @@ export class DropboxAuthService {
       redirect_uri: this.config.redirectUri,
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
-      scope: 'files.metadata.write files.content.write files.content.read',
+      scope: 'files.metadata.write files.content.write files.content.read sharing.read sharing.write',
       token_access_type: 'offline' // Para obtener refresh token
     });
 

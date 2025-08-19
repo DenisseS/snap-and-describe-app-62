@@ -33,8 +33,16 @@ export class RemoteShoppingListProvider extends GenericShoppingListProvider {
     return listsData;
   }
 
-  private resolveListPath(listId: string): string {
-    return `${DROPBOX_APP_FOLDER_PATH}${SHOPPING_LIST_CACHE_KEYS.REMOTE_LIST_PREFIX}${listId}.json`;
+  private resolveListPath(listId: string, syncRef?: { path: string }): string {
+    if (syncRef?.path) {
+      return syncRef.path;
+    }
+    // New folder-based structure: /NutriInfo/lists/{listId}/shopping-list.json
+    return `${DROPBOX_APP_FOLDER_PATH}${SHOPPING_LIST_CACHE_KEYS.REMOTE_LIST_PREFIX}${listId}/shopping-list.json`;
+  }
+
+  private resolveListFolderPath(listId: string): string {
+    return `${DROPBOX_APP_FOLDER_PATH}${SHOPPING_LIST_CACHE_KEYS.REMOTE_LIST_PREFIX}${listId}`;
   }
 
   // Update inmediato del cache local + background sync
@@ -51,6 +59,10 @@ export class RemoteShoppingListProvider extends GenericShoppingListProvider {
 
   // Cache local como fuente de verdad con sync handler
   protected async getListData(listId: string): Promise<ShoppingListData | null> {
+    // Get metadata to resolve correct path
+    const metadata = await this.getListsDetails();
+    const listMeta = metadata.lists[listId];
+    
     // Primero intentar cache local
     const localKey = `${SHOPPING_LIST_CACHE_KEYS.LOCAL_LIST_DATA_PREFIX}${listId}`;
     const localData = this.sessionService.getLocalFile(localKey);
@@ -62,7 +74,7 @@ export class RemoteShoppingListProvider extends GenericShoppingListProvider {
 
     // Si no hay cache local, intentar cargar de remoto
     console.log(`🛒 RemoteProvider: Loading list ${listId} from remote`);
-    const result = await this.sessionService.getFile(this.resolveListPath(listId));
+    const result = await this.sessionService.getFile(this.resolveListPath(listId, listMeta?.syncRef));
 
     if (result.data) {
       // Guardar en cache local para próximas veces
@@ -157,7 +169,10 @@ export class RemoteShoppingListProvider extends GenericShoppingListProvider {
     onSyncStatusChange(true);
 
     try {
-      const filePath = this.resolveListPath(listId);
+      // Get metadata to resolve correct path
+      const metadata = await this.getListsDetails();
+      const listMeta = metadata.lists[listId];
+      const filePath = this.resolveListPath(listId, listMeta?.syncRef);
       const result = await this.sessionService.getFile(filePath);
 
       if (result.syncHandler) {
@@ -239,9 +254,12 @@ export class RemoteShoppingListProvider extends GenericShoppingListProvider {
     const localKey = `${SHOPPING_LIST_CACHE_KEYS.LOCAL_LIST_DATA_PREFIX}${listId}`;
     this.sessionService.setLocalFile(localKey, data);
 
-    // 2. Enqueue to Service Worker generic queue (fire-and-forget)
-    const path = this.resolveListPath(listId);
-    await this.sessionService.updateFile(path, data);
+    // Create folder first, then file
+    const folderPath = this.resolveListFolderPath(listId);
+    const filePath = this.resolveListPath(listId);
+    
+    // Create file (SessionService will create folders as needed)
+    await this.sessionService.updateFile(filePath, data);
   }
 
   protected async deleteListData(listId: string): Promise<void> {
@@ -251,15 +269,30 @@ export class RemoteShoppingListProvider extends GenericShoppingListProvider {
     const localKey = `${SHOPPING_LIST_CACHE_KEYS.LOCAL_LIST_DATA_PREFIX}${listId}`;
     this.sessionService.clearCache(localKey);
 
-    // 2. Background delete
-    const path = this.resolveListPath(listId);
-    await this.sessionService.deleteFile(path);
+    // 2. Get metadata to resolve correct path
+    const metadata = await this.getListsDetails();
+    const listMeta = metadata.lists[listId];
+    
+    // 3. Delete entire folder if it's a local list, or just file if remote
+    if (listMeta?.origin === 'remote' && listMeta.syncRef?.path) {
+      // Remote list - only delete our reference
+      await this.sessionService.deleteFile(listMeta.syncRef.path);
+    } else {
+      // Local list - delete entire folder
+      const folderPath = this.resolveListFolderPath(listId);
+      await this.sessionService.deleteFile(folderPath);
+    }
   }
 
   // Force refresh a list from remote (Dropbox) and override local cache/UI
   public async forceRefreshListData(listId: string): Promise<ShoppingListData | null> {
     console.log(`🛒 RemoteProvider: Forcing refresh for list ${listId} from remote`);
-    const filePath = this.resolveListPath(listId);
+    
+    // Get metadata to resolve correct path
+    const metadata = await this.getListsDetails();
+    const listMeta = metadata.lists[listId];
+    const filePath = this.resolveListPath(listId, listMeta?.syncRef);
+    
     try {
       const remoteData = await this.sessionService.forceRemoteFetch(filePath);
       if (remoteData) {

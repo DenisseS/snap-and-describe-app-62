@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, ShoppingCart, RefreshCcw } from "lucide-react";
+import { CheckCircle2, ShoppingCart, RefreshCcw, Share2 } from "lucide-react";
 import Layout from "@/components/Layout";
 import BaseEditModal from "@/components/BaseEditModal";
+import ShareListModal from "@/components/ShareListModal";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -46,6 +47,7 @@ const ShoppingListDetailPage: React.FC = () => {
   const isSWProcessing = queueState === QueueState.PROCESSING;
   const { sessionService } = useAuthentication();
   const [showItemModal, setShowItemModal] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [editingItem, setEditingItem] = useState<any>(null);
   const [itemName, setItemName] = useState("");
   const [itemQuantity, setItemQuantity] = useState("");
@@ -232,7 +234,17 @@ const ShoppingListDetailPage: React.FC = () => {
         <div className="h-full bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
           <div className="flex-1 overflow-auto" style={{ paddingBottom: "calc(var(--bottom-nav-height) + 1rem)" }}>
             <div className="p-4">
-              {/* Search and Actions Row */}
+              {listData?.origin === 'remote' ? (
+                <div className="flex items-center gap-2 text-sm text-blue-600 bg-blue-50 px-3 py-2 rounded-lg mb-4">
+                  <Share2 className="h-4 w-4" />
+                  <span>{t('remoteList', 'Lista compartida')}</span>
+                  {listData.syncRef?.ownerEmail && (
+                    <span className="text-blue-500">
+                      {t('by', 'por')} {listData.syncRef.ownerEmail}
+                    </span>
+                  )}
+                </div>
+              ) : null}
               <div className="mb-6">
                 <div className="flex items-center gap-2">
                   <div className="flex-1">
@@ -243,16 +255,34 @@ const ShoppingListDetailPage: React.FC = () => {
                       disabled={isProcessing}
                     />
                   </div>
-                  {sessionService.isAuthenticated() &&
-                    <button
-                      onClick={handleForceRefresh}
-                      disabled={isProcessing}
-                      className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-600 disabled:opacity-50"
-                      aria-label={t("forceRefresh", "Forzar actualización")}
-                      title={t("forceRefresh", "Forzar actualización")}
-                    >
-                      <RefreshCcw className="h-5 w-5"/>
-                    </button>}
+                  {sessionService.isAuthenticated() && (
+                    <>
+                      <button
+                        onClick={handleForceRefresh}
+                        disabled={isProcessing}
+                        className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-600 disabled:opacity-50"
+                      >
+                        <RefreshCcw className="h-4 w-4" />
+                      </button>
+                      
+                      {listData?.origin !== 'remote' && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => setShowShareModal(true)}
+                              disabled={isProcessing}
+                              className="h-10 w-10 inline-flex items-center justify-center rounded-xl bg-green-100 hover:bg-green-200 text-green-600 disabled:opacity-50"
+                            >
+                              <Share2 className="h-4 w-4" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{t('shareList', 'Compartir Lista')}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -398,6 +428,20 @@ const ShoppingListDetailPage: React.FC = () => {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          {/* Share List Modal */}
+          {listData && (
+            <ShareListModal
+              isOpen={showShareModal}
+              onClose={() => setShowShareModal(false)}
+              list={{
+                ...listData,
+                itemCount: listData.itemCount ?? listData.items.length,
+                completedCount: listData.completedCount ?? listData.items.filter(i => i.purchased).length
+              }}
+              folderPath={`/NutriInfo/lists/${listId}`}
+            />
+          )}
         </div>
       </Layout>
     </TooltipProvider>
