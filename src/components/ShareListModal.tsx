@@ -67,15 +67,7 @@ const ShareListModal: React.FC<ShareListModalProps> = ({
     setIsInviting(true);
     
     try {
-      // First share the folder if not already shared
-      if (!isShared) {
-        QueueClient.getInstance().enqueue('dropbox-sharing', list.id, {
-          type: 'share_folder',
-          folderPath
-        });
-      }
-      
-      // Then add the member
+      // Enqueue single invite; SW ensures folder is shared and resolves ID
       QueueClient.getInstance().enqueue('dropbox-sharing', list.id, {
         type: 'invite',
         folderPath,

@@ -148,8 +148,8 @@
           }
         }
 
-        // Process latest item first (LIFO across ready items)
-        ready.sort((a, b) => b.lastUpdatedAt - a.lastUpdatedAt);
+        // Process oldest item first (FIFO across ready items)
+        ready.sort((a, b) => a.lastUpdatedAt - b.lastUpdatedAt);
         const item = ready[0];
         console.log('SW Queue: processing item', { queueName: item.queueName, resourceKey: item.resourceKey });
         item.status = 'processing';
